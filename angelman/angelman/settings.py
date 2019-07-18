@@ -24,10 +24,6 @@ PROJECT_TITLE = env.get("project_title", "Global Angelman Syndrome Registry")
 PROJECT_TITLE_LINK = "login_router"
 
 
-# Registration
-REGISTRATION_CLASS = "angelman.patient_registration.AngelmanRegistration"
-
-
 # For now keep password validation same as on front end
 # at least 6 chars
 # has a number
@@ -43,3 +39,6 @@ AUTH_PASSWORD_VALIDATORS = [{
 ]
 
 VERSION = env.get('app_version', '%s (ang)' % angelman.VERSION)
+
+REGISTRATION_FORM = "rdrf.forms.registration_forms.ParentWithPatientRegistrationForm"
+REGISTRATION_CLASS = "registry.groups.registration.parent_with_patient.ParentWithPatientRegistration"
