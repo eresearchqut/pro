@@ -103,10 +103,12 @@ class AngelmanRegistration(BaseRegistration):
         parent_guardian.save()
         logger.debug("Registration process - created parent")
 
+        registration = RegistrationProfile.objects.get(user=user)
         template_data = {
             "patient": patient,
             "parent": parent_guardian,
-            "registration": RegistrationProfile.objects.get(user=user)
+            "registration": registration,
+            "activation_url": self.get_registration_activation_url(registration),
         }
 
         process_notification(registry_code, EventType.NEW_PATIENT, template_data)
