@@ -3,11 +3,10 @@ import logging
 from django.utils.translation import get_language
 
 from rdrf.events.events import EventType
-from rdrf.models.workflow_models import ClinicianSignupRequest
 from rdrf.services.io.notifications.email_notification import process_notification
 
 from registration.models import RegistrationProfile
-from registry.patients.models import ParentGuardian, Patient, PatientAddress, AddressType
+from registry.patients.models import ParentGuardian, PatientAddress, AddressType
 from registry.groups import GROUPS
 
 
