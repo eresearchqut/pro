@@ -6,6 +6,12 @@
 {% load recaptcha_site_key %}
 
 {% block extra_js_init %}
+    {% if form.non_field_errors or form.errors %}
+      var anyServerSideErrors = true;
+    {% else %}
+      var anyServerSideErrors = false;
+    {% endif %};
+
     $("#id_date_of_birth").datepicker(dateOptions);
     $("#id_parent_guardian_date_of_birth").datepicker(dateOptions);
 
@@ -66,9 +72,13 @@
 
     $("#id_same_address").on("click", onSameAddressChecked);
 
-    var accordion = $("#patient-form").accordion("instance");
-    if (typeof(accordion) !== "undefined") {
-        accordion.option("active", false);
+    if (!anyServerSideErrors) {
+        // Collapse the accordion on initial view, but leave it expanded if there are
+        // any server-side errors, to be able to view all incorrect fields
+        var accordion = $("#patient-form").accordion("instance");
+        if (typeof(accordion) !== "undefined") {
+            accordion.option("active", false);
+        }
     }
 
 {% endblock %}
