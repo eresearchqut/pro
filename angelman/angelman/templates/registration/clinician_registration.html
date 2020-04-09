@@ -151,17 +151,6 @@
                 $("#password-error").text(gettext("The passwords don't match!"));
                 $("#password-error").show("fast");
                 $("#registration-submit").hide();
-            } else {
-                $("#password-error").hide("fast");
-                password_regx = /^(?=.*[0-9])\S{6,}$/
-                if(!$(this).val().match(password_regx)) {
-                    $("#password-error").text(gettext("Password needs to be at least 6 characters long and contain 1 number"));
-                    $("#password-error").show("fast");
-                    $("#registration-submit").hide();
-                } else {
-                    $("#password-error").hide("fast");
-                    $("#registration-submit").show();
-                }
             }
         });
         
