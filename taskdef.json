@@ -108,6 +108,10 @@
                 {
                     "name": "TRRF_SOURCE_DIR",
                     "value": "/app/rdrf"
+                },
+                {
+                    "name": "ALERT_EMAIL",
+                    "value": "$ALERT_EMAIL"
                 }
             ],
             "image": "${IMAGE_REPO}:${IMAGE_TAG}",
