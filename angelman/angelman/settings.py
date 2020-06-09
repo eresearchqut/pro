@@ -42,3 +42,8 @@ VERSION = env.get('app_version', '%s (ang)' % angelman.VERSION)
 
 REGISTRATION_FORM = "angelman.forms.angelman_registration_form.ANGRegistrationForm"
 REGISTRATION_CLASS = "angelman.registry.groups.registration.angelman_registration.AngelmanRegistration"
+
+SECURITY_WHITELISTED_URLS += (
+    "parent_edit",
+    "parent_page",
+)
