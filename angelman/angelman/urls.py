@@ -2,8 +2,10 @@ from django.conf.urls import include
 from django.urls import re_path
 
 from . import parent_view
+from angelman.views import landing_view
 
 urlpatterns = [
+    re_path(r'^$', landing_view.LandingView.as_view(), name='landing'),
     re_path(r"^(?P<registry_code>\w+)/parent/?$",
             parent_view.ParentView.as_view(), name='parent_page'),
     re_path(r"^(?P<registry_code>\w+)/parent/(?P<parent_id>\d+)/?$",

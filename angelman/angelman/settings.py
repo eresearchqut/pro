@@ -1,8 +1,10 @@
 # flake8: noqa
 import os
-
+from ccg_django_utils.conf import EnvConfig
 from rdrf.settings import *
 import angelman
+
+env = EnvConfig()
 
 
 FALLBACK_REGISTRY_CODE = "angelman"
@@ -32,3 +34,8 @@ SECURITY_WHITELISTED_URLS += (
     "parent_edit",
     "parent_page",
 )
+
+SCRIPT_NAME = env.get("script_name", os.environ.get("HTTP_SCRIPT_NAME", ""))
+WEBAPP_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_ROOT = env.get('STATIC_ROOT', os.path.join(WEBAPP_ROOT, 'static'))
+STATIC_URL = env.get('STATIC_URL', '{0}/static/'.format(SCRIPT_NAME))
