@@ -32,3 +32,5 @@ SECURITY_WHITELISTED_URLS += (
     "parent_edit",
     "parent_page",
 )
+
+SYSTEM_ROLE = SystemRoles.NORMAL
