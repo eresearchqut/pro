@@ -23,22 +23,14 @@ RECAPTCHA_SECRET_KEY = env.get("recaptcha_secret_key", "")
 PROJECT_TITLE = env.get("project_title", "Global Angelman Syndrome Registry")
 PROJECT_TITLE_LINK = "login_router"
 
-
-# For now keep password validation same as on front end
-# at least 6 chars
-# has a number
-AUTH_PASSWORD_VALIDATORS = [{
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 6,
-        }
-    },
-    {
-        'NAME': 'rdrf.auth.password_validation.HasNumberValidator',
-    },
-]
-
 VERSION = env.get('app_version', '%s (ang)' % angelman.VERSION)
 
 REGISTRATION_FORM = "angelman.forms.angelman_registration_form.ANGRegistrationForm"
 REGISTRATION_CLASS = "angelman.registry.groups.registration.angelman_registration.AngelmanRegistration"
+
+SECURITY_WHITELISTED_URLS += (
+    "parent_edit",
+    "parent_page",
+)
+
+SYSTEM_ROLE = SystemRoles.NORMAL
