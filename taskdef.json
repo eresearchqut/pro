@@ -62,8 +62,8 @@
                     "value": "$REPORTING_DBNAME"
                 },
                 {
-                    "name": "RRF_SITE_DOMAIN",
-                    "value": "$RRF_SITE_DOMAIN"
+                    "name": "TRRF_SITE_DOMAIN",
+                    "value": "$TRRF_SITE_DOMAIN"
                 },
                 {
                     "name": "AWS_STORAGE_BUCKET_NAME",
@@ -108,9 +108,31 @@
                 {
                     "name": "TRRF_SOURCE_DIR",
                     "value": "/app/rdrf"
+                },
+                {
+                    "name": "ALERT_EMAIL",
+                    "value": "$ALERT_EMAIL"
+                },
+                {
+                    "name": "EMAIL_SUBJECT_PREFIX",
+                    "value": "$EMAIL_SUBJECT_PREFIX"
+                },
+                {
+                    "name": "VIRUS_CHECKING_ENABLED",
+                    "value": "$VIRUS_CHECKING_ENABLED"
                 }
             ],
             "image": "${IMAGE_REPO}:${IMAGE_TAG}",
+            "healthCheck": {
+                "retries": 3,
+                "command": [
+                    "CMD-SHELL",
+                    "curl -k -f https://localhost:$CONTAINER_PORT/health-check || exit 1"
+                ],
+                "timeout": 5,
+                "interval": 10,
+                "startPeriod": 30
+            },
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
