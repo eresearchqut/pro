@@ -64,13 +64,11 @@
             </ul>
         </div>
 
-        {% if request.user.is_parent %}
-            <div class="btn-group" role="group" aria-label="...">
-                <button id="add-patient-btn" class="btn btn-success" data-toggle="modal" data-target="#new_patient_modal">
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>{% trans 'Add a Patient' %}
-                </button>
-            </div>
-        {% endif %}
+        <div class="btn-group" role="group" aria-label="...">
+            <button id="add-patient-btn" class="btn btn-success" data-toggle="modal" data-target="#new_patient_modal">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>{% trans 'Add a Patient' %}
+            </button>
+        </div>
         <div class="modal fade" id="new_patient_modal" tabindex="-1" role="dialog" aria-labelledby="newPatientModal" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
