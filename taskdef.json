@@ -95,7 +95,7 @@
                 },
                 {
                     "name": "DEBUG",
-                    "value": "$DEBUG"
+                    "value": "1"
                 },
                 {
                     "name": "NEW_RELIC_APP_NAME",
