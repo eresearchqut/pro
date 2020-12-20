@@ -1,38 +1,20 @@
 from collections import defaultdict
-import multiprocessing
 import sys
 
-from django import db
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
-from tqdm import tqdm
 from rdrf.models.definition.models import RDRFContext, Registry, ClinicalData, ContextFormGroupItem
-from rdrf.db.contexts_api import RDRFContextManager
-from rdrf.db.dynamic_data import DynamicDataWrapper
 from registry.patients.models import Patient
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-def calculate_progress(args):
-    registry_code, patient, context = args
-    dyn_patient = DynamicDataWrapper(patient, rdrf_context_id=context.id)
-    dyn_patient.save_form_progress(registry_code, context_model=context)
 
 
 class Command(BaseCommand):
-    help = """Fixes imported clinical data entries which do not have the context_id field set.
-              Also computes form progress for fixed cdes collections"""
+    help = "Fixes imported clinical data entries which do not have the context_id field set"
 
     def add_arguments(self, parser):
         parser.add_argument("registry_code")
-        parser.add_argument("processes")
 
-    def handle(self, registry_code, processes, **options):
+    def handle(self, registry_code, **options):
         self.registry_model = None
-        self.processes = int(processes)
         try:
             self.registry_model = Registry.objects.get(code=registry_code)
         except Registry.DoesNotExist:
@@ -47,67 +29,43 @@ class Command(BaseCommand):
 
     def _fix_entries(self):
         reg_code = self.registry_model.code
-        context_mgr = RDRFContextManager(self.registry_model)
         cd_models = (
             ClinicalData.objects.filter(
-                registry_code=reg_code, django_model='Patient',
+                registry_code=reg_code, django_model='Patient', collection='cdes',
                 context_id__isnull=True
-            ).order_by('-id'))
+            ).order_by('-id').values('id', 'django_id', 'data'))
         self.stdout.write(f"Found {cd_models.count()} entries to fix")
+        result = defaultdict(list)
+        data_dict = {}
         cfgs_map = {}
         for cfg in ContextFormGroupItem.objects.filter(registry_form__registry=self.registry_model):
             cfgs_map[cfg.registry_form.name] = cfg.context_form_group.id
-        self.stdout.write(f"CFGs map={cfgs_map}")
-        patients_and_contexts = defaultdict(list)
-        with_default_contexts_created = set()
-        for entry in tqdm(cd_models, desc="Creating contexts"):
-            if entry.collection == "cdes":
-                form_names = [f["name"] for f in entry.data["forms"]]
-            elif entry.collection == "history":
-                form_names = [f["name"] for f in entry.data["record"]["forms"]]
-            else:
-                continue
+        print(f"CFGs map={cfgs_map}")
+        for entry in cd_models:
+            form_names = [f["name"] for f in entry["data"]["forms"]]
+            print(f"Forms={form_names}")
             cfgs = list(set(cfgs_map[f] for f in form_names if f in cfgs_map))
-            # self.stdout.write(f"CFGs={cfgs}")
-            if len(cfgs) == 0:
-                continue
-            patient_id = entry.django_id
+            print(f"CFGs={cfgs}")
+            patient_id = entry["django_id"]
             patient = Patient.objects.filter(pk=patient_id).first()
             if patient:
-                if patient_id not in with_default_contexts_created:
-                    # Ensure all fixed context are created
-                    context_mgr.get_or_create_default_context(patient)
-                    with_default_contexts_created.add(patient_id)
-
                 content_type = ContentType.objects.get_for_model(patient)
                 context = RDRFContext.objects.filter(registry=self.registry_model,
                                                      content_type=content_type,
                                                      object_id=patient_id,
                                                      context_form_group_id=cfgs[0]).first()
                 if not context:
-                    logger.info(f"Created new context for patient {patient_id} and context form group {cfgs[0]}")
                     context = RDRFContext.objects.create(registry=self.registry_model,
                                                          content_type=content_type,
                                                          object_id=patient_id,
                                                          context_form_group_id=cfgs[0])
 
-                entry.data["context_id"] = context.id
-                entry.context_id = context.id
-                entry.save()
-                if entry.collection == "cdes":
-                    patients_and_contexts[patient].append(context)
+                result[context.id].append(entry['id'])
+                data = entry["data"]
+                data["context_id"] = context.id
+                data_dict[entry['id']] = data
 
-        self.stdout.write("Calculating form progress...")
-        seen = set()
-        args = []
-        for patient, contexts in patients_and_contexts.items():
-            for c in contexts:
-                if (patient.id, c.id) in seen:
-                    continue
-                args.append((self.registry_model.code, patient, c))
-                seen.add((patient.id, c.id))
-
-        db.connections.close_all()
-        with multiprocessing.Pool(processes=self.processes) as pool:
-            for _ in tqdm(pool.imap(calculate_progress, args), desc="Calculating progress", total=len(args)):
-                pass
+        for context_id, ids in result.items():
+            ClinicalData.objects.filter(pk__in=ids).update(context_id=context_id)
+        for entry_id, data in data_dict.items():
+            ClinicalData.objects.filter(pk=entry_id).update(data=data)
