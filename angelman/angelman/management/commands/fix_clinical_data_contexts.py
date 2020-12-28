@@ -1,4 +1,5 @@
 from collections import defaultdict
+import re
 import sys
 
 from django.contrib.contenttypes.models import ContentType
@@ -31,9 +32,9 @@ class Command(BaseCommand):
         reg_code = self.registry_model.code
         cd_models = (
             ClinicalData.objects.filter(
-                registry_code=reg_code, django_model='Patient', collection='cdes',
+                registry_code=reg_code, django_model='Patient',
                 context_id__isnull=True
-            ).order_by('-id').values('id', 'django_id', 'data'))
+            ).order_by('-id').values('id', 'django_id', 'collection', 'data'))
         self.stdout.write(f"Found {cd_models.count()} entries to fix")
         result = defaultdict(list)
         data_dict = {}
@@ -42,8 +43,18 @@ class Command(BaseCommand):
             cfgs_map[cfg.registry_form.name] = cfg.context_form_group.id
         print(f"CFGs map={cfgs_map}")
         for entry in cd_models:
-            form_names = [f["name"] for f in entry["data"]["forms"]]
-            print(f"Forms={form_names}")
+            if entry["collection"] != "progress":
+                form_names = [f["name"] for f in entry["data"]["forms"]]
+                print(f"Forms={form_names}")
+            else:
+                data = entry["data"]
+                for k, v in data.items():
+                    if v and k.endswith("form_current"):
+                        search_result = re.search('(.+)_form_current', k)
+                        if search_result:
+                            form_names = [search_result.groups()[0]]
+                print(f"Progress forms={form_names}")
+
             cfgs = list(set(cfgs_map[f] for f in form_names if f in cfgs_map))
             print(f"CFGs={cfgs}")
             patient_id = entry["django_id"]
