@@ -43,12 +43,14 @@ class Command(BaseCommand):
         self.stdout.write(f"CFGs map={cfgs_map}")
         patients_and_contexts = defaultdict(list)
         for entry in cd_models:
-            if entry.collection == "progress":
+            if entry.collection != "cdes":
                 continue
             form_names = [f["name"] for f in entry.data["forms"]]
             self.stdout.write(f"Forms={form_names}")
             cfgs = list(set(cfgs_map[f] for f in form_names if f in cfgs_map))
             self.stdout.write(f"CFGs={cfgs}")
+            if len(cfgs) == 0:
+                continue
             patient_id = entry.django_id
             patient = Patient.objects.filter(pk=patient_id).first()
             if patient:
