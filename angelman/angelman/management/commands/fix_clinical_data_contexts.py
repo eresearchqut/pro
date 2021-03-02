@@ -1,11 +1,27 @@
 from collections import defaultdict
+import multiprocessing
 import sys
 
+from django import db
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from rdrf.models.definition.models import RDRFContext, Registry, ClinicalData, ContextFormGroupItem
 from rdrf.db.dynamic_data import DynamicDataWrapper
 from registry.patients.models import Patient
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+def calculate_progress(registry_code, patient_id, context_id):
+    logger.info(f"Calculating {patient_id=} {context_id=}")
+    patient = Patient.objects.get(pk=patient_id)
+    context = RDRFContext.objects.get(pk=context_id)
+
+    dyn_patient = DynamicDataWrapper(patient, rdrf_context_id=context.id)
+    dyn_patient.save_form_progress(registry_code, context_model=context)
+    logger.info(f"Calculated {patient.id=} {context.id=}")
+
 
 
 class Command(BaseCommand):
@@ -14,9 +30,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("registry_code")
+        parser.add_argument("processes")
 
-    def handle(self, registry_code, **options):
+    def handle(self, registry_code, processes, **options):
         self.registry_model = None
+        self.processes = int(processes)
         try:
             self.registry_model = Registry.objects.get(code=registry_code)
         except Registry.DoesNotExist:
@@ -73,11 +91,15 @@ class Command(BaseCommand):
 
         self.stdout.write("Calculating form progress...")
         seen = set()
+        args = []
         for patient, contexts in patients_and_contexts.items():
             for c in contexts:
                 if (patient.id, c.id) in seen:
                     continue
-                self.stdout.write(f"Calculating progress for patient {patient.id} and contex {c.id}")
-                dyn_patient = DynamicDataWrapper(patient, rdrf_context_id=c.id)
-                dyn_patient.save_form_progress(self.registry_model.code, context_model=c)
+                args.append((self.registry_model.code, patient.id, c.id))
                 seen.add((patient.id, c.id))
+
+        db.connections.close_all()
+        with multiprocessing.Pool(processes=self.processes) as pool:
+            pool.starmap(calculate_progress, args)
+
