@@ -40,4 +40,5 @@ SECURITY_WHITELISTED_URLS += (
 SYSTEM_ROLE = SystemRoles.NORMAL
 
 PASSWORD_EXPIRY_DAYS = env.get("password_expiry_days", 0)
-ACCOUNT_EXPIRY_DAYS = env.get("account_expiry_days", 0)
+PASSWORD_EXPIRY_WARNING_DAYS = env.get("password_expiry_warning_days", 0)
+ACCOUNT_EXPIRY_DAYS = env.get("account_expiry_days", 0) 
