@@ -110,6 +110,10 @@
                     "value": "/app/rdrf"
                 },
                 {
+                    "name": "DEFAULT_FROM_EMAIL",
+                    "value": "$DEFAULT_FROM_EMAIL"
+                },
+                {
                     "name": "ALERT_EMAIL",
                     "value": "$ALERT_EMAIL"
                 },
