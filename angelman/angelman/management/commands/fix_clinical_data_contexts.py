@@ -5,6 +5,7 @@ import sys
 from django import db
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
+from tqdm import tqdm
 from rdrf.models.definition.models import RDRFContext, Registry, ClinicalData, ContextFormGroupItem
 from rdrf.db.contexts_api import RDRFContextManager
 from rdrf.db.dynamic_data import DynamicDataWrapper
@@ -15,11 +16,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def calculate_progress(registry_code, patient, context):
-    logger.info(f"Calculating {patient} with context id {context.id}")
+def calculate_progress(args):
+    registry_code, patient, context = args
     dyn_patient = DynamicDataWrapper(patient, rdrf_context_id=context.id)
     dyn_patient.save_form_progress(registry_code, context_model=context)
-    logger.info(f"Calculated {patient} with context id {context.id}")
 
 
 class Command(BaseCommand):
@@ -109,5 +109,5 @@ class Command(BaseCommand):
 
         db.connections.close_all()
         with multiprocessing.Pool(processes=self.processes) as pool:
-            pool.starmap(calculate_progress, args)
-
+            for _ in tqdm(pool.imap(calculate_progress, args), desc="Calculating progress", total=len(args)):
+                pass
