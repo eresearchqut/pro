@@ -60,11 +60,13 @@ class Command(BaseCommand):
         self.stdout.write(f"CFGs map={cfgs_map}")
         patients_and_contexts = defaultdict(list)
         with_default_contexts_created = set()
-        for entry in cd_models:
-            if entry.collection != "cdes":
+        for entry in tqdm(cd_models, desc="Creating contexts"):
+            if entry.collection == "cdes":
+                form_names = [f["name"] for f in entry.data["forms"]]
+            elif entry.collection == "history":
+                form_names = [f["name"] for f in entry.data["record"]["forms"]]
+            else:
                 continue
-            form_names = [f["name"] for f in entry.data["forms"]]
-            # self.stdout.write(f"Forms={form_names}")
             cfgs = list(set(cfgs_map[f] for f in form_names if f in cfgs_map))
             # self.stdout.write(f"CFGs={cfgs}")
             if len(cfgs) == 0:
