@@ -193,7 +193,7 @@
     "cpu": "1024",
     "executionRoleArn": "$EXECUTION_ROLE_ARN",
     "taskRoleArn": "$TASK_ROLE_ARN",
-    "memory": "$MEMORY",
+    "memory": "2048",
     "networkMode": "awsvpc",
     "family": "$TASK_DEF_NAME",
     "requiresCompatibilities": [
