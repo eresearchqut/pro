@@ -176,8 +176,6 @@
         {
             "name": "xray-daemon",
             "image": "public.ecr.aws/xray/aws-xray-daemon:latest",
-            "cpu": 512,
-            "memoryReservation": 1024,
             "portMappings": [
                 {
                     "containerPort": 2000,
@@ -199,10 +197,10 @@
             }
         }
     ],
-    "cpu": "2048",
+    "cpu": "$CPU",
     "executionRoleArn": "$EXECUTION_ROLE_ARN",
     "taskRoleArn": "$TASK_ROLE_ARN",
-    "memory": "4096",
+    "memory": "$MEMORY",
     "networkMode": "awsvpc",
     "family": "$TASK_DEF_NAME",
     "requiresCompatibilities": [
