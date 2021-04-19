@@ -190,7 +190,7 @@
             ]
         }
     ],
-    "cpu": "$CPU",
+    "cpu": "1024",
     "executionRoleArn": "$EXECUTION_ROLE_ARN",
     "taskRoleArn": "$TASK_ROLE_ARN",
     "memory": "$MEMORY",
