@@ -119,7 +119,7 @@
                 },
                 {
                     "name": "AWS_XRAY_SDK_ENABLED",
-                    "value": 0
+                    "value": "0"
                 }
             ],
             "image": "${IMAGE_REPO}:${IMAGE_TAG}",
