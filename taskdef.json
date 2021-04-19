@@ -116,6 +116,10 @@
                 {
                     "name": "VIRUS_CHECKING_ENABLED",
                     "value": "$VIRUS_CHECKING_ENABLED"
+                },
+                {
+                    "name": "AWS_XRAY_SDK_ENABLED",
+                    "value": 0
                 }
             ],
             "image": "${IMAGE_REPO}:${IMAGE_TAG}",
