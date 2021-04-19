@@ -178,7 +178,7 @@
             "image": "public.ecr.aws/xray/aws-xray-daemon:latest",
             "cpu": 512,
             "memoryReservation": 1024,
-            "portMappings" : [
+            "portMappings": [
                 {
                     "containerPort": 2000,
                     "protocol": "udp"
@@ -187,7 +187,16 @@
                     "containerPort": 2000,
                     "protocol": "tcp"
                 }
-            ]
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "$AWSLOGS_GROUP",
+                    "awslogs-region": "$AWS_DEFAULT_REGION",
+                    "awslogs-stream-prefix": "xray"
+                }
+            }
         }
     ],
     "cpu": "2048",
