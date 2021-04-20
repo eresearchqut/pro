@@ -176,9 +176,7 @@
         {
             "name": "xray-daemon",
             "image": "public.ecr.aws/xray/aws-xray-daemon:latest",
-            "cpu": 32,
-            "memoryReservation": 256,
-            "portMappings" : [
+            "portMappings": [
                 {
                     "containerPort": 2000,
                     "protocol": "udp"
