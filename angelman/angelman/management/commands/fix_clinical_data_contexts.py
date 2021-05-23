@@ -97,6 +97,10 @@ class Command(BaseCommand):
                 if entry.collection == "cdes":
                     patients_and_contexts[patient].append(context)
 
+        self.stdout.write("Creating default contexts for remaining patients")
+        for patient in tqdm(Patient.objects.all(), desc="Creating contexts"):
+            context_mgr.get_or_create_default_context(patient)
+
         self.stdout.write("Calculating form progress...")
         seen = set()
         args = []
